@@ -51,7 +51,7 @@
 
 ```sh
 SECRET_KEY=gqFw2q9pkpuiHk0z7ysXw0TS1QRJyzl8WkYntqy9OerIYkWAcsHEkRJE2NVK3wn
-MONGO_URI=mongodb+srv://admin:password@cluster0.wxorm.mongodb.net/<dbname>?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://admin:el2AmKqo1CN0rkv7@cluster0.wxorm.mongodb.net/test?retryWrites=true&w=majority
 CLOUDNAME=devmkylpi
 CLOUDKEY=294113774143274
 CLOUDSECRET=2CgHfaOgERplIea53cDkl7PscJs

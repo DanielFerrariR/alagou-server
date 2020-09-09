@@ -2,12 +2,18 @@ import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
 
 export type User = {
+  name: string
   email: string
   password: string
+  profilePhoto: string
   comparePassword: (candidate: string) => Promise<boolean>
 } & mongoose.Document
 
 const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
   email: {
     type: String,
     unique: true,
@@ -17,7 +23,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  ProfilePhoto: {
+  profilePhoto: {
     type: String
   }
 })
