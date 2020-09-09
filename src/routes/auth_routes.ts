@@ -14,13 +14,12 @@ router.post('/register', uploader.single('profilePhoto'), async (req, res) => {
   const { name, email, password } = req.body
 
   try {
-    const userData = { name, email, password, profilePhoto }
-
-    const user = new User(userData)
+    const user = new User({ name, email, password, profilePhoto })
 
     await user.save()
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
+    const userData = { name, email, profilePhoto }
 
     res.status(200).send({ ...userData, token })
   } catch (error) {
@@ -50,8 +49,13 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
+    const userData = {
+      name: user.name,
+      email: user.email,
+      profilePhoto: user.profilePhoto
+    }
 
-    return res.send({ email, token })
+    return res.send({ ...userData, token })
   } catch (error) {
     console.log(error)
     return res.status(401).send({ error: 'Senha ou e-mail inválido.' })
