@@ -2,27 +2,30 @@ import express from 'express'
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
 import { User } from 'src/models/User'
+import uploader from '../cloudinary'
 import { ensure } from '../utils'
 
 const User = mongoose.model('User')
 
 const router = express.Router()
 
-router.post('/register', async (req, res) => {
-  const { email, password } = req.body
+router.post('/register', uploader.single('profilePhoto'), async (req, res) => {
+  console.log('sdada')
+  console.log(req.file, req.body)
+  res.status(404).send('hi')
 
-  try {
-    const user = new User({ email, password })
+  // try {
+  //   const user = new User({ email, password })
 
-    await user.save()
+  //   await user.save()
 
-    const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
+  //   const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
 
-    res.send({ email, token })
-  } catch (error) {
-    console.log(error)
-    res.status(422).send(error.message)
-  }
+  //   res.send({ token })
+  // } catch (error) {
+  //   console.log(error)
+  //   res.status(422).send(error.message)
+  // }
 })
 
 router.post('/login', async (req, res) => {
