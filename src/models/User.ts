@@ -6,6 +6,7 @@ export type User = {
   email: string
   password: string
   profilePhoto: string
+  level: number
   comparePassword: (candidate: string) => Promise<boolean>
 } & mongoose.Document
 
@@ -25,6 +26,10 @@ const userSchema = new mongoose.Schema({
   },
   profilePhoto: {
     type: String
+  },
+  level: {
+    type: Number,
+    default: 0
   }
 })
 

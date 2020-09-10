@@ -3,7 +3,7 @@ import './models'
 import express, { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
-import { authRoutes, trackRoutes } from './routes'
+import { authRoutes } from './routes'
 import { requireAuth } from './midlewares'
 import { ensure } from './utils'
 
@@ -13,7 +13,6 @@ const app = express()
 
 app.use(bodyParser.json())
 app.use(authRoutes)
-app.use(trackRoutes)
 
 const mongoUri = ensure(process.env.MONGO_URI)
 
