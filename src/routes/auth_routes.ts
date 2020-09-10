@@ -6,7 +6,6 @@ import uploader from '../cloudinary'
 import { ensure } from '../utils'
 
 const User = mongoose.model('User')
-const Flooding = mongoose.model('Flooding')
 
 const router = express.Router()
 
@@ -47,9 +46,6 @@ router.post('/login', async (req, res) => {
   }
 
   const user = (await User.findOne({ email })) as User
-  const floodings = await Flooding.find({ userId: user._id })
-
-  console.log(floodings)
 
   if (!user) {
     return res.status(401).send({ error: 'Senha ou e-mail inválido.' })

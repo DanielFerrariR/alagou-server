@@ -34,7 +34,7 @@ const floodingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
-  title: {
+  description: {
     type: String,
     required: true
   },
