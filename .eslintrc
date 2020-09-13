@@ -10,7 +10,8 @@
     "no-restricted-syntax": "off",
     "no-underscore-dangle": "off",
     "func-names": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "global-require": "off"
   },
   "overrides": [
     {
@@ -39,7 +40,8 @@
         "no-underscore-dangle": "off",
         "@typescript-eslint/no-this-alias": "off",
         "func-names": "off",
-        "consistent-return": "off"
+        "consistent-return": "off",
+        "global-require": "off"
       }
     }
   ]

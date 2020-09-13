@@ -24,14 +24,12 @@ router.post('/register', uploader.single('profilePhoto'), async (req, res) => {
     await user.save()
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
-    const userData = {
-      name,
-      email,
-      profilePhoto,
-      level: 0
-    }
 
-    res.status(200).send({ ...userData, token })
+    const { password: newPassword, ...newUser } = (await User.findOne({
+      email
+    })) as User
+
+    res.status(200).send({ ...newUser, token })
   } catch (error) {
     console.log(error)
     res.status(422).send(error.message)
@@ -45,7 +43,9 @@ router.post('/login', async (req, res) => {
     return res.status(422).send({ error: 'Deve informar o usuário e a senha.' })
   }
 
-  const user = (await User.findOne({ email })) as User
+  const { password: newPassword, ...user } = (await User.findOne({
+    email
+  })) as User
 
   if (!user) {
     return res.status(401).send({ error: 'Senha ou e-mail inválido.' })
@@ -59,14 +59,8 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
-    const userData = {
-      name: user.name,
-      email: user.email,
-      profilePhoto: user.profilePhoto,
-      level: user.level
-    }
 
-    return res.send({ ...userData, token })
+    return res.send({ ...user, token })
   } catch (error) {
     console.log(error)
     return res.status(401).send({ error: 'Senha ou e-mail inválido.' })

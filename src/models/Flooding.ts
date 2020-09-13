@@ -1,33 +1,13 @@
 import mongoose from 'mongoose'
+import { sendFloodings } from '../socket'
 
 export type Flooding = {
-  userId: number[]
+  userId: number
   description: string
-  address: string
-  photo: string
-  location: {
-    timestamp: number
-    coords: {
-      latitude: number
-      longitude: number
-      altitude: number
-      accuracy: number
-      heading: number
-      speed: number
-    }
-  }
+  latitude: number
+  longitude: number
+  picture: string
 } & mongoose.Document
-
-const pointSchema = new mongoose.Schema({
-  coords: {
-    latitude: Number,
-    longitude: Number,
-    altitude: Number,
-    accuracy: Number,
-    heading: Number,
-    speed: Number
-  }
-})
 
 const floodingSchema = new mongoose.Schema({
   userId: {
@@ -38,9 +18,12 @@ const floodingSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  address: {
-    type: String,
+  latitude: {
+    type: Number,
     required: true
+  },
+  longitude: {
+    type: Number
   },
   picture: {
     type: String,
@@ -55,8 +38,32 @@ const floodingSchema = new mongoose.Schema({
   date: {
     type: Date,
     required: true
-  },
-  location: pointSchema
+  }
+})
+
+floodingSchema.post('save', async (document) => {
+  const Floodings = document.constructor as mongoose.Model<
+    mongoose.Document,
+    Record<string, unknown>
+  >
+  const floodings = (await Floodings.find().populate('userId')) as any
+
+  const newFloodings = floodings.map((each: any) => {
+    return {
+      _id: each._id,
+      userId: each.userId._id,
+      userName: each.userId.name,
+      userPicture: each.userId.profilePhoto,
+      description: each.description,
+      latitude: each.latitude,
+      longitude: each.longitude,
+      picture: each.picture,
+      severity: each.severity,
+      date: each.date
+    }
+  })
+
+  sendFloodings(newFloodings)
 })
 
 mongoose.model('Flooding', floodingSchema)

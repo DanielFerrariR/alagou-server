@@ -55,6 +55,7 @@ MONGO_URI=mongodb+srv://admin:el2AmKqo1CN0rkv7@cluster0.wxorm.mongodb.net/test?r
 CLOUDNAME=devmkylpi
 CLOUDKEY=294113774143274
 CLOUDSECRET=2CgHfaOgERplIea53cDkl7PscJs
+SERVER_PORT=3005
 ```
 
 3. **Install all dependencies with yarn (not npm!!)**
