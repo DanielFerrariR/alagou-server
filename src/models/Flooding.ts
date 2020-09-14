@@ -4,6 +4,7 @@ import { sendFloodings } from '../socket'
 export type Flooding = {
   userId: number
   description: string
+  address: string
   latitude: number
   longitude: number
   picture: string
@@ -15,6 +16,10 @@ const floodingSchema = new mongoose.Schema({
     ref: 'User'
   },
   description: {
+    type: String,
+    required: true
+  },
+  address: {
     type: String,
     required: true
   },
@@ -55,6 +60,7 @@ floodingSchema.post('save', async (document) => {
       userName: each.userId.name,
       userPicture: each.userId.profilePhoto,
       description: each.description,
+      address: each.address,
       latitude: each.latitude,
       longitude: each.longitude,
       picture: each.picture,

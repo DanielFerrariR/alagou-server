@@ -25,11 +25,18 @@ router.post('/register', uploader.single('profilePhoto'), async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
 
-    const { password: newPassword, ...newUser } = (await User.findOne({
+    const newUser = (await User.findOne({
       email
     })) as User
 
-    res.status(200).send({ ...newUser, token })
+    const userData = {
+      _id: newUser._id,
+      email: newUser.email,
+      profilePhoto: newUser.profilePhoto,
+      level: newUser.level
+    }
+
+    res.status(200).send({ ...userData, token })
   } catch (error) {
     console.log(error)
     res.status(422).send(error.message)
@@ -43,7 +50,7 @@ router.post('/login', async (req, res) => {
     return res.status(422).send({ error: 'Deve informar o usuário e a senha.' })
   }
 
-  const { password: newPassword, ...user } = (await User.findOne({
+  const user = (await User.findOne({
     email
   })) as User
 
@@ -60,7 +67,14 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
 
-    return res.send({ ...user, token })
+    const userData = {
+      _id: user._id,
+      email: user.email,
+      profilePhoto: user.profilePhoto,
+      level: user.level
+    }
+
+    return res.send({ ...userData, token })
   } catch (error) {
     console.log(error)
     return res.status(401).send({ error: 'Senha ou e-mail inválido.' })

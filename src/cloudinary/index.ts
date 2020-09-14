@@ -15,7 +15,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'profile-photos',
+    folder: 'pictures',
     format: 'png'
   }
 })

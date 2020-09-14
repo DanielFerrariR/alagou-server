@@ -19,6 +19,7 @@ router.get('/floodings', async (_req, res) => {
       userName: each.userId.name,
       userPicture: each.userId.picture,
       description: each.description,
+      address: each.address,
       latitude: each.latitude,
       longitude: each.longitude,
       picture: each.picture,
@@ -31,13 +32,14 @@ router.get('/floodings', async (_req, res) => {
 })
 
 router.post('/flooding', uploader.single('picture'), async (req, res) => {
-  const { description, latitude, longitude, severity, date } = req.body
+  const { description, address, latitude, longitude, severity, date } = req.body
   const picture = req.file.path
 
   try {
     const flooding = new Flooding({
       userId: req.user._id,
       description,
+      address,
       latitude,
       longitude,
       picture,
@@ -56,6 +58,7 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
         userName: each.userId.name,
         userPicture: each.userId.picture,
         description: each.description,
+        address: each.address,
         latitude: each.latitude,
         longitude: each.longitude,
         picture: each.picture,
