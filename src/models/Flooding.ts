@@ -14,7 +14,8 @@ const floodingSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
+      required: true
     },
     description: {
       type: String,
@@ -29,11 +30,11 @@ const floodingSchema = new mongoose.Schema(
       required: true
     },
     longitude: {
-      type: Number
+      type: Number,
+      required: true
     },
     picture: {
-      type: String,
-      required: true
+      type: String
     },
     severity: {
       type: Number,
@@ -58,12 +59,34 @@ const floodingSchema = new mongoose.Schema(
   }
 )
 
-floodingSchema.post('save', async (document) => {
-  const Floodings = document.constructor as mongoose.Model<
-    mongoose.Document,
-    Record<string, unknown>
-  >
-  const floodings = (await Floodings.find().populate('userId')) as any
+floodingSchema.post('updateOne', async function () {
+  const Flooding = mongoose.model('Flooding')
+
+  const floodings = (await Flooding.find().populate('userId')) as any
+
+  const newFloodings = floodings.map((each: any) => {
+    return {
+      _id: each._id,
+      userId: each.userId._id,
+      userName: each.userId.name,
+      userPicture: each.userId.profilePhoto,
+      description: each.description,
+      address: each.address,
+      latitude: each.latitude,
+      longitude: each.longitude,
+      picture: each.picture,
+      severity: each.severity,
+      date: each.date
+    }
+  })
+
+  ioInstance.emit('floodings', newFloodings)
+})
+
+floodingSchema.post('save', async function () {
+  const Flooding = mongoose.model('Flooding')
+
+  const floodings = (await Flooding.find().populate('userId')) as any
 
   const newFloodings = floodings.map((each: any) => {
     return {

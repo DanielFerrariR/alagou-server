@@ -11,6 +11,7 @@ export type User = {
   _deleted: boolean
   isAdmin: boolean
   comparePassword: (candidate: string) => Promise<boolean>
+  _update: User
 } & mongoose.Document
 
 const userSchema = new mongoose.Schema(
@@ -51,6 +52,25 @@ const userSchema = new mongoose.Schema(
     }
   }
 )
+
+userSchema.pre('updateOne', async function (next) {
+  const user = (this as unknown) as User
+
+  if (!user._update.password) {
+    return next()
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(10)
+    const hash = await bcrypt.hash(user._update.password, salt)
+
+    user._update.password = hash
+
+    return next()
+  } catch (error) {
+    return next(error)
+  }
+})
 
 userSchema.pre('save', async function (next) {
   const user = this as User

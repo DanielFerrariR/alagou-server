@@ -11,8 +11,14 @@ const router = express.Router()
 
 router.post('/register', uploader.single('picture'), async (req, res) => {
   try {
-    const picture = req.file ? req.file.path : ''
     const { name, email, password } = req.body
+    const picture = req.file ? req.file.path : req.body.picture
+
+    if (!name || !email || !password) {
+      return res
+        .status(422)
+        .send({ error: 'Todos os campos obrigatórios devem ser preenchidos' })
+    }
 
     const futureUser = (await User.findOne({
       email,
@@ -64,7 +70,7 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res
         .status(422)
-        .send({ error: 'Deve informar o usuário e a senha.' })
+        .send({ error: 'Todos campos obrigatórios devem ser preenchidos.' })
     }
 
     const user = (await User.findOne({

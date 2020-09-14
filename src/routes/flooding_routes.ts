@@ -49,7 +49,7 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
       severity,
       date
     } = req.body
-    const picture = req.file.path
+    const picture = req.file ? req.file.path : req.body.picture
 
     const flooding = new Flooding({
       userId: req.user._id,
@@ -101,8 +101,20 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
       longitude,
       severity
     } = req.body
-
     const picture = req.file ? req.file.path : req.body.picture
+
+    if (
+      !_id ||
+      !description ||
+      !address ||
+      !latitude ||
+      !longitude ||
+      !severity
+    ) {
+      return res
+        .status(422)
+        .send({ error: 'Todos campos obrigatórios devem ser preenchidos.' })
+    }
 
     const flooding = (await Flooding.findOne({
       _id,
@@ -139,10 +151,11 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
       }
     })
 
-    res.send(updatedFloodings)
+    return res.send(updatedFloodings)
   } catch (error) {
     console.log(error)
-    res.status(422).send({ error: error.message })
+
+    return res.status(422).send({ error: error.message })
   }
 })
 
