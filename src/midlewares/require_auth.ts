@@ -18,14 +18,14 @@ const requireAuth = (
   const { authorization } = req.headers
 
   if (!authorization) {
-    return res.status(401).send({ error: 'You must be logged in.' })
+    return res.status(401).send({ error: 'Você precisa estar logado.' })
   }
 
   const token = authorization.replace('Bearer ', '')
 
   jwt.verify(token, ensure(process.env.SECRET_KEY), async (error, payload) => {
     if (error) {
-      return res.status(401).send({ error: 'You must be logged in.' })
+      return res.status(401).send({ error: 'Você precisa estar logado.' })
     }
 
     const { userId } = payload as Payload

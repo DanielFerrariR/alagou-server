@@ -9,8 +9,8 @@ const User = mongoose.model('User')
 
 const router = express.Router()
 
-router.post('/register', uploader.single('profilePhoto'), async (req, res) => {
-  const profilePhoto = req.file ? req.file.path : ''
+router.post('/register', uploader.single('picture'), async (req, res) => {
+  const picture = req.file ? req.file.path : ''
   const { name, email, password } = req.body
 
   try {
@@ -18,7 +18,7 @@ router.post('/register', uploader.single('profilePhoto'), async (req, res) => {
       name,
       email,
       password,
-      profilePhoto
+      picture
     })
 
     await user.save()
@@ -31,12 +31,14 @@ router.post('/register', uploader.single('profilePhoto'), async (req, res) => {
 
     const userData = {
       _id: newUser._id,
+      name: newUser.name,
       email: newUser.email,
-      profilePhoto: newUser.profilePhoto,
-      level: newUser.level
+      picture: newUser.picture,
+      level: newUser.level,
+      favorites: newUser.favorites
     }
 
-    res.status(200).send({ ...userData, token })
+    res.send({ ...userData, token })
   } catch (error) {
     console.log(error)
     res.status(422).send(error.message)
@@ -69,9 +71,11 @@ router.post('/login', async (req, res) => {
 
     const userData = {
       _id: user._id,
+      name: user.name,
       email: user.email,
-      profilePhoto: user.profilePhoto,
-      level: user.level
+      picture: user.picture,
+      level: user.level,
+      favorites: user.favorites
     }
 
     return res.send({ ...userData, token })

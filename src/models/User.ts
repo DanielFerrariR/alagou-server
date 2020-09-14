@@ -5,33 +5,43 @@ export type User = {
   name: string
   email: string
   password: string
-  profilePhoto: string
+  picture: string
   level: number
+  favorites: string[]
   comparePassword: (candidate: string) => Promise<boolean>
 } & mongoose.Document
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true
+    },
+    password: {
+      type: String,
+      required: true
+    },
+    picture: {
+      type: String
+    },
+    level: {
+      type: Number,
+      default: 0
+    },
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Flooding' }]
   },
-  email: {
-    type: String,
-    unique: true,
-    required: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  profilePhoto: {
-    type: String
-  },
-  level: {
-    type: Number,
-    default: 0
+  {
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
+    }
   }
-})
+)
 
 userSchema.pre('save', async function (next) {
   const user = this as User

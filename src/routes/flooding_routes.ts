@@ -7,8 +7,6 @@ const Flooding = mongoose.model('Flooding')
 
 const router = express.Router()
 
-router.use(requireAuth)
-
 router.get('/floodings', async (_req, res) => {
   const floodings = await Flooding.find().populate('userId')
 
@@ -30,6 +28,8 @@ router.get('/floodings', async (_req, res) => {
 
   res.send(newFloodings)
 })
+
+router.use(requireAuth)
 
 router.post('/flooding', uploader.single('picture'), async (req, res) => {
   const { description, address, latitude, longitude, severity, date } = req.body

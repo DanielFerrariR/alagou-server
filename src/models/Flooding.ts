@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
-import { sendFloodings } from '../socket'
+import { ioInstance } from '../socket'
 
 export type Flooding = {
-  userId: number
+  userId: string
   description: string
   address: string
   latitude: number
@@ -10,41 +10,49 @@ export type Flooding = {
   picture: string
 } & mongoose.Document
 
-const floodingSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+const floodingSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    description: {
+      type: String,
+      required: true
+    },
+    address: {
+      type: String,
+      required: true
+    },
+    latitude: {
+      type: Number,
+      required: true
+    },
+    longitude: {
+      type: Number
+    },
+    picture: {
+      type: String,
+      required: true
+    },
+    severity: {
+      type: Number,
+      min: 1,
+      max: 3,
+      required: true
+    },
+    date: {
+      type: Date,
+      required: true
+    }
   },
-  description: {
-    type: String,
-    required: true
-  },
-  address: {
-    type: String,
-    required: true
-  },
-  latitude: {
-    type: Number,
-    required: true
-  },
-  longitude: {
-    type: Number
-  },
-  picture: {
-    type: String,
-    required: true
-  },
-  severity: {
-    type: Number,
-    min: 1,
-    max: 3,
-    required: true
-  },
-  date: {
-    type: Date,
-    required: true
+  {
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
+    }
   }
-})
+)
 
 floodingSchema.post('save', async (document) => {
   const Floodings = document.constructor as mongoose.Model<
@@ -69,7 +77,7 @@ floodingSchema.post('save', async (document) => {
     }
   })
 
-  sendFloodings(newFloodings)
+  ioInstance.emit('floodings', newFloodings)
 })
 
 mongoose.model('Flooding', floodingSchema)
