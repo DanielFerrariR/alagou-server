@@ -10,10 +10,19 @@ const User = mongoose.model('User')
 const router = express.Router()
 
 router.post('/register', uploader.single('picture'), async (req, res) => {
-  const picture = req.file ? req.file.path : ''
-  const { name, email, password } = req.body
-
   try {
+    const picture = req.file ? req.file.path : ''
+    const { name, email, password } = req.body
+
+    const futureUser = (await User.findOne({
+      email,
+      _deleted: { $nin: true }
+    })) as User
+
+    if (futureUser) {
+      return res.status(422).send({ error: 'E-mail já cadastrado.' })
+    }
+
     const user = new User({
       name,
       email,
@@ -26,7 +35,8 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
 
     const newUser = (await User.findOne({
-      email
+      email,
+      _deleted: { $nin: true }
     })) as User
 
     const userData = {
@@ -35,36 +45,41 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
       email: newUser.email,
       picture: newUser.picture,
       level: newUser.level,
-      favorites: newUser.favorites
+      favorites: newUser.favorites,
+      isAdmin: newUser.isAdmin
     }
 
-    res.send({ ...userData, token })
+    return res.send({ ...userData, token })
   } catch (error) {
     console.log(error)
-    res.status(422).send(error.message)
+
+    return res.status(422).send(error.message)
   }
 })
 
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body
-
-  if (!email || !password) {
-    return res.status(422).send({ error: 'Deve informar o usuário e a senha.' })
-  }
-
-  const user = (await User.findOne({
-    email
-  })) as User
-
-  if (!user) {
-    return res.status(401).send({ error: 'Senha ou e-mail inválido.' })
-  }
-
   try {
+    const { email, password } = req.body
+
+    if (!email || !password) {
+      return res
+        .status(422)
+        .send({ error: 'Deve informar o usuário e a senha.' })
+    }
+
+    const user = (await User.findOne({
+      email,
+      _deleted: { $nin: true }
+    })) as User
+
+    if (!user) {
+      return res.status(422).send({ error: 'Senha ou e-mail inválido.' })
+    }
+
     const isEqual = await user.comparePassword(password)
 
     if (!isEqual) {
-      return res.status(401).send({ error: 'Senha ou e-mail inválido.' })
+      return res.status(422).send({ error: 'Senha ou e-mail inválido.' })
     }
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
@@ -75,13 +90,14 @@ router.post('/login', async (req, res) => {
       email: user.email,
       picture: user.picture,
       level: user.level,
-      favorites: user.favorites
+      favorites: user.favorites,
+      isAdmin: user.isAdmin
     }
 
     return res.send({ ...userData, token })
   } catch (error) {
     console.log(error)
-    return res.status(401).send({ error: 'Senha ou e-mail inválido.' })
+    return res.status(422).send({ error: 'Senha ou e-mail inválido.' })
   }
 })
 

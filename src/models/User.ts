@@ -8,6 +8,8 @@ export type User = {
   picture: string
   level: number
   favorites: string[]
+  _deleted: boolean
+  isAdmin: boolean
   comparePassword: (candidate: string) => Promise<boolean>
 } & mongoose.Document
 
@@ -19,7 +21,6 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      unique: true,
       required: true
     },
     password: {
@@ -33,7 +34,15 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Flooding' }]
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Flooding' }],
+    _deleted: {
+      type: Boolean,
+      default: false
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: {

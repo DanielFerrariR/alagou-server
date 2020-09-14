@@ -30,6 +30,7 @@ router.post('/add_favorite', async (req, res) => {
 
   const userData = {
     _id: updatedUser._id,
+    name: updatedUser.name,
     email: updatedUser.email,
     picture: updatedUser.picture,
     level: updatedUser.level,
@@ -62,6 +63,7 @@ router.post('/remove_favorite', async (req, res) => {
 
   const userData = {
     _id: updatedUser._id,
+    name: updatedUser.name,
     email: updatedUser.email,
     picture: updatedUser.picture,
     level: updatedUser.level,

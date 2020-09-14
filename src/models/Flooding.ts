@@ -44,6 +44,10 @@ const floodingSchema = new mongoose.Schema(
     date: {
       type: Date,
       required: true
+    },
+    _deleted: {
+      type: Boolean,
+      default: false
     }
   },
   {
