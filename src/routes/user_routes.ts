@@ -34,12 +34,17 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
       }
     }
 
-    await user.updateOne({
+    let updatedUser: any = {
       name,
       email,
-      password: oldPassword ? newPassword : req.user.password,
       picture
-    })
+    }
+
+    if (oldPassword) {
+      updatedUser = { ...updatedUser, password: newPassword }
+    }
+
+    await user.updateOne(updatedUser)
 
     const userData = {
       _id: user._id,
