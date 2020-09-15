@@ -64,7 +64,11 @@ floodingSchema.post('updateOne', async function () {
 
   const floodings = (await Flooding.find().populate('userId')) as any
 
-  const newFloodings = floodings.map((each: any) => {
+  const filteredFloodings = floodings.map(
+    (each: any) => each.userId._deleted === false
+  )
+
+  const newFloodings = filteredFloodings.map((each: any) => {
     return {
       _id: each._id,
       userId: each.userId._id,
@@ -88,7 +92,11 @@ floodingSchema.post('save', async function () {
 
   const floodings = (await Flooding.find().populate('userId')) as any
 
-  const newFloodings = floodings.map((each: any) => {
+  const filteredFloodings = floodings.map(
+    (each: any) => each.userId._deleted === false
+  )
+
+  const newFloodings = filteredFloodings.map((each: any) => {
     return {
       _id: each._id,
       userId: each.userId._id,

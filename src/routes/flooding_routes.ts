@@ -14,7 +14,11 @@ router.get('/floodings', async (_req, res) => {
       _deleted: { $nin: true }
     }).populate('userId')
 
-    const newFloodings = floodings.map((each: any) => {
+    const filteredFloodings = floodings.map(
+      (each: any) => each.userId._deleted === false
+    )
+
+    const newFloodings = filteredFloodings.map((each: any) => {
       return {
         _id: each._id,
         userId: each.userId._id,
@@ -68,7 +72,11 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
       _deleted: { $nin: true }
     }).populate('userId')) as any
 
-    const newFloodings = floodings.map((each: any) => {
+    const filteredFloodings = floodings.map(
+      (each: any) => each.userId._deleted === false
+    )
+
+    const newFloodings = filteredFloodings.map((each: any) => {
       return {
         _id: each._id,
         userId: each.userId._id,
@@ -135,7 +143,11 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
       _deleted: { $nin: true }
     }).populate('userId')) as any
 
-    const updatedFloodings = floodings.map((each: any) => {
+    const filteredFloodings = floodings.map(
+      (each: any) => each.userId._deleted === false
+    )
+
+    const updatedFloodings = filteredFloodings.map((each: any) => {
       return {
         _id: each._id,
         userId: each.userId._id,
@@ -177,7 +189,11 @@ router.delete('/flooding', async (req, res) => {
       _deleted: { $nin: true }
     }).populate('userId')) as any
 
-    const updatedFloodings = floodings.map((each: any) => {
+    const filteredFloodings = floodings.map(
+      (each: any) => each.userId._deleted === false
+    )
+
+    const updatedFloodings = filteredFloodings.map((each: any) => {
       return {
         _id: each._id,
         userId: each.userId._id,
