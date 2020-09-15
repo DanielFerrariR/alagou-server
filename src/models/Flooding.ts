@@ -8,6 +8,7 @@ export type Flooding = {
   latitude: number
   longitude: number
   picture: string
+  favorites: string[]
 } & mongoose.Document
 
 const floodingSchema = new mongoose.Schema(
@@ -46,6 +47,7 @@ const floodingSchema = new mongoose.Schema(
       type: Date,
       required: true
     },
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     _deleted: {
       type: Boolean,
       default: false
@@ -64,7 +66,7 @@ floodingSchema.post('updateOne', async function () {
 
   const floodings = (await Flooding.find().populate('userId')) as any
 
-  const filteredFloodings = floodings.map(
+  const filteredFloodings = floodings.filter(
     (each: any) => each.userId._deleted === false
   )
 
@@ -80,7 +82,8 @@ floodingSchema.post('updateOne', async function () {
       longitude: each.longitude,
       picture: each.picture,
       severity: each.severity,
-      date: each.date
+      date: each.date,
+      favorites: each.favorites
     }
   })
 
@@ -92,7 +95,7 @@ floodingSchema.post('save', async function () {
 
   const floodings = (await Flooding.find().populate('userId')) as any
 
-  const filteredFloodings = floodings.map(
+  const filteredFloodings = floodings.filter(
     (each: any) => each.userId._deleted === false
   )
 
@@ -108,7 +111,8 @@ floodingSchema.post('save', async function () {
       longitude: each.longitude,
       picture: each.picture,
       severity: each.severity,
-      date: each.date
+      date: each.date,
+      favorites: each.favorites
     }
   })
 

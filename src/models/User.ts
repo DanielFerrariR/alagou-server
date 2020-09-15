@@ -7,7 +7,6 @@ export type User = {
   password: string
   picture: string
   level: number
-  favorites: string[]
   _deleted: boolean
   isAdmin: boolean
   comparePassword: (candidate: string) => Promise<boolean>
@@ -35,7 +34,6 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Flooding' }],
     _deleted: {
       type: Boolean,
       default: false

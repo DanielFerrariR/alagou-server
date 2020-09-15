@@ -47,84 +47,7 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
       email,
       picture,
       level: user.level,
-      favorites: user.favorites,
       isAdmin: user.isAdmin
-    }
-
-    return res.send({ ...userData })
-  } catch (error) {
-    console.log(error)
-
-    return res.status(422).send(error.message)
-  }
-})
-
-router.post('/add-favorite', async (req, res) => {
-  try {
-    const { _id: floodingId } = req.body
-
-    const user = (await User.findOne({ _id: req.user._id })) as User
-
-    if (!user) {
-      return res.status(401).send({ error: 'Usuário não existe.' })
-    }
-
-    const favorites = [...user.favorites]
-
-    favorites.push(floodingId)
-
-    await user.updateOne({
-      favorites
-    })
-
-    const updatedUser = (await User.findOne({ _id: req.user._id })) as User
-
-    const userData = {
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      picture: updatedUser.picture,
-      level: updatedUser.level,
-      favorites: updatedUser.favorites
-    }
-
-    return res.send({ ...userData })
-  } catch (error) {
-    console.log(error)
-
-    return res.status(422).send(error.message)
-  }
-})
-
-router.post('/remove-favorite', async (req, res) => {
-  try {
-    const { _id: floodingId } = req.body
-
-    const user = (await User.findOne({ _id: req.user._id })) as User
-
-    if (!user) {
-      return res.status(401).send({ error: 'Usuário não existe.' })
-    }
-
-    let favorites = [...user.favorites]
-
-    favorites = favorites.filter((each) => {
-      return each.toString() !== floodingId
-    })
-
-    await user.updateOne({
-      favorites
-    })
-
-    const updatedUser = (await User.findOne({ _id: req.user._id })) as User
-
-    const userData = {
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      picture: updatedUser.picture,
-      level: updatedUser.level,
-      favorites: updatedUser.favorites
     }
 
     return res.send({ ...userData })
@@ -176,7 +99,8 @@ router.post('/delete-account', async (req, res) => {
         longitude: each.longitude,
         picture: each.picture,
         severity: each.severity,
-        date: each.date
+        date: each.date,
+        favorites: each.favorites
       }
     })
 

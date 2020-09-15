@@ -1,8 +1,8 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import { Flooding } from 'src/models'
 import { requireAuth } from '../midlewares'
 import uploader from '../cloudinary'
-import { ioInstance } from '../socket'
 
 const Flooding = mongoose.model('Flooding')
 
@@ -14,7 +14,7 @@ router.get('/floodings', async (_req, res) => {
       _deleted: { $nin: true }
     }).populate('userId')
 
-    const filteredFloodings = floodings.map(
+    const filteredFloodings = floodings.filter(
       (each: any) => each.userId._deleted === false
     )
 
@@ -30,7 +30,8 @@ router.get('/floodings', async (_req, res) => {
         longitude: each.longitude,
         picture: each.picture,
         severity: each.severity,
-        date: each.date
+        date: each.date,
+        favorites: each.favorites
       }
     })
 
@@ -72,7 +73,7 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
       _deleted: { $nin: true }
     }).populate('userId')) as any
 
-    const filteredFloodings = floodings.map(
+    const filteredFloodings = floodings.filter(
       (each: any) => each.userId._deleted === false
     )
 
@@ -88,7 +89,8 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
         longitude: each.longitude,
         picture: each.picture,
         severity: each.severity,
-        date: each.date
+        date: each.date,
+        favorites: each.favorites
       }
     })
 
@@ -143,7 +145,7 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
       _deleted: { $nin: true }
     }).populate('userId')) as any
 
-    const filteredFloodings = floodings.map(
+    const filteredFloodings = floodings.filter(
       (each: any) => each.userId._deleted === false
     )
 
@@ -159,7 +161,8 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
         longitude: each.longitude,
         picture: each.picture,
         severity: each.severity,
-        date: each.date
+        date: each.date,
+        favorites: each.favorites
       }
     })
 
@@ -175,7 +178,10 @@ router.delete('/flooding', async (req, res) => {
   try {
     const { _id } = req.body
 
-    const flooding = await Flooding.findOne({ _id, _deleted: { $nin: true } })
+    const flooding = (await Flooding.findOne({
+      _id,
+      _deleted: { $nin: true }
+    })) as Flooding
 
     if (!flooding) {
       return res.status(422).send({ error: 'Alagamento não encontrado.' })
@@ -189,7 +195,7 @@ router.delete('/flooding', async (req, res) => {
       _deleted: { $nin: true }
     }).populate('userId')) as any
 
-    const filteredFloodings = floodings.map(
+    const filteredFloodings = floodings.filter(
       (each: any) => each.userId._deleted === false
     )
 
@@ -205,17 +211,126 @@ router.delete('/flooding', async (req, res) => {
         longitude: each.longitude,
         picture: each.picture,
         severity: each.severity,
-        date: each.date
+        date: each.date,
+        favorites: each.favorites
       }
     })
-
-    ioInstance.emit('deletedFlooding', _id)
 
     return res.send(updatedFloodings)
   } catch (error) {
     console.log(error)
 
     return res.status(422).send({ error: error.message })
+  }
+})
+
+router.post('/add-favorite', async (req, res) => {
+  try {
+    const { _id } = req.body
+
+    const flooding = (await Flooding.findOne({
+      _id,
+      _deleted: { $nin: true }
+    })) as Flooding
+
+    if (!flooding) {
+      return res.status(422).send({ error: 'Alagamento não encontrado.' })
+    }
+
+    const favorites = [...flooding.favorites]
+
+    favorites.push(_id)
+
+    await flooding.updateOne({
+      favorites
+    })
+
+    const floodings = (await Flooding.find({
+      _deleted: { $nin: true }
+    }).populate('userId')) as any
+
+    const filteredFloodings = floodings.filter(
+      (each: any) => each.userId._deleted === false
+    )
+
+    const updatedFloodings = filteredFloodings.map((each: any) => {
+      return {
+        _id: each._id,
+        userId: each.userId._id,
+        userName: each.userId.name,
+        userPicture: each.userId.picture,
+        description: each.description,
+        address: each.address,
+        latitude: each.latitude,
+        longitude: each.longitude,
+        picture: each.picture,
+        severity: each.severity,
+        date: each.date,
+        favorites: each.favorites
+      }
+    })
+
+    return res.send(updatedFloodings)
+  } catch (error) {
+    console.log(error)
+
+    return res.status(422).send(error.message)
+  }
+})
+
+router.post('/remove-favorite', async (req, res) => {
+  try {
+    const { _id } = req.body
+
+    const flooding = (await Flooding.findOne({
+      _id,
+      _deleted: { $nin: true }
+    })) as Flooding
+
+    if (!flooding) {
+      return res.status(422).send({ error: 'Alagamento não encontrado.' })
+    }
+
+    let favorites = [...flooding.favorites]
+
+    favorites = favorites.filter((each) => {
+      return each.toString() !== _id
+    })
+
+    await flooding.updateOne({
+      favorites
+    })
+
+    const floodings = (await Flooding.find({
+      _deleted: { $nin: true }
+    }).populate('userId')) as any
+
+    const filteredFloodings = floodings.filter(
+      (each: any) => each.userId._deleted === false
+    )
+
+    const updatedFloodings = filteredFloodings.map((each: any) => {
+      return {
+        _id: each._id,
+        userId: each.userId._id,
+        userName: each.userId.name,
+        userPicture: each.userId.picture,
+        description: each.description,
+        address: each.address,
+        latitude: each.latitude,
+        longitude: each.longitude,
+        picture: each.picture,
+        severity: each.severity,
+        date: each.date,
+        favorites: each.favorites
+      }
+    })
+
+    return res.send(updatedFloodings)
+  } catch (error) {
+    console.log(error)
+
+    return res.status(422).send(error.message)
   }
 })
 

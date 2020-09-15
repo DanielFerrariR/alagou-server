@@ -51,7 +51,6 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
       email: newUser.email,
       picture: newUser.picture,
       level: newUser.level,
-      favorites: newUser.favorites,
       isAdmin: newUser.isAdmin
     }
 
@@ -96,7 +95,6 @@ router.post('/login', async (req, res) => {
       email: user.email,
       picture: user.picture,
       level: user.level,
-      favorites: user.favorites,
       isAdmin: user.isAdmin
     }
 
