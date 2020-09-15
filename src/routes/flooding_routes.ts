@@ -239,11 +239,17 @@ router.post('/add-favorite', async (req, res) => {
 
     const favorites = [...flooding.favorites]
 
-    favorites.push(_id)
-
-    await flooding.updateOne({
-      favorites
+    const convertedFavorites = favorites.map((each) => {
+      return each.toString()
     })
+
+    if (!convertedFavorites.includes(req.user._id.toString())) {
+      favorites.push(req.user._id)
+
+      await flooding.updateOne({
+        favorites
+      })
+    }
 
     const floodings = (await Flooding.find({
       _deleted: { $nin: true }
@@ -294,7 +300,7 @@ router.post('/remove-favorite', async (req, res) => {
     let favorites = [...flooding.favorites]
 
     favorites = favorites.filter((each) => {
-      return each.toString() !== _id
+      return each.toString() !== req.user._id.toString()
     })
 
     await flooding.updateOne({
