@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import { Flooding } from 'src/models'
 import { requireAuth } from '../midlewares'
 import uploader from '../cloudinary'
+import { sendAllFloodings } from '../utils'
 
 const Flooding = mongoose.model('Flooding')
 
@@ -10,32 +11,7 @@ const router = express.Router()
 
 router.get('/floodings', async (_req, res) => {
   try {
-    const floodings = await Flooding.find({
-      _deleted: { $nin: true }
-    }).populate('userId')
-
-    const filteredFloodings = floodings.filter(
-      (each: any) => each.userId._deleted === false
-    )
-
-    const newFloodings = filteredFloodings.map((each: any) => {
-      return {
-        _id: each._id,
-        userId: each.userId._id,
-        userName: each.userId.name,
-        userPicture: each.userId.picture,
-        description: each.description,
-        address: each.address,
-        latitude: each.latitude,
-        longitude: each.longitude,
-        picture: each.picture,
-        severity: each.severity,
-        date: each.date,
-        favorites: each.favorites
-      }
-    })
-
-    res.send(newFloodings)
+    res.send(await sendAllFloodings())
   } catch (error) {
     console.log(error)
     res.status(422).send({ error: error.message })
@@ -46,14 +22,7 @@ router.use(requireAuth)
 
 router.post('/flooding', uploader.single('picture'), async (req, res) => {
   try {
-    const {
-      description,
-      address,
-      latitude,
-      longitude,
-      severity,
-      date
-    } = req.body
+    const { description, address, latitude, longitude, severity } = req.body
     const picture = req.file ? req.file.path : req.body.picture
 
     const flooding = new Flooding({
@@ -64,37 +33,12 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
       longitude,
       picture,
       severity,
-      date
+      date: new Date().getTime()
     })
 
     await flooding.save()
 
-    const floodings = (await Flooding.find({
-      _deleted: { $nin: true }
-    }).populate('userId')) as any
-
-    const filteredFloodings = floodings.filter(
-      (each: any) => each.userId._deleted === false
-    )
-
-    const newFloodings = filteredFloodings.map((each: any) => {
-      return {
-        _id: each._id,
-        userId: each.userId._id,
-        userName: each.userId.name,
-        userPicture: each.userId.picture,
-        description: each.description,
-        address: each.address,
-        latitude: each.latitude,
-        longitude: each.longitude,
-        picture: each.picture,
-        severity: each.severity,
-        date: each.date,
-        favorites: each.favorites
-      }
-    })
-
-    res.send(newFloodings)
+    res.send(await sendAllFloodings())
   } catch (error) {
     console.log(error)
     res.status(422).send({ error: error.message })
@@ -141,32 +85,7 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
       severity
     })
 
-    const floodings = (await Flooding.find({
-      _deleted: { $nin: true }
-    }).populate('userId')) as any
-
-    const filteredFloodings = floodings.filter(
-      (each: any) => each.userId._deleted === false
-    )
-
-    const updatedFloodings = filteredFloodings.map((each: any) => {
-      return {
-        _id: each._id,
-        userId: each.userId._id,
-        userName: each.userId.name,
-        userPicture: each.userId.picture,
-        description: each.description,
-        address: each.address,
-        latitude: each.latitude,
-        longitude: each.longitude,
-        picture: each.picture,
-        severity: each.severity,
-        date: each.date,
-        favorites: each.favorites
-      }
-    })
-
-    return res.send(updatedFloodings)
+    return res.send(await sendAllFloodings())
   } catch (error) {
     console.log(error)
 
@@ -191,32 +110,7 @@ router.delete('/flooding', async (req, res) => {
       _deleted: true
     })
 
-    const floodings = (await Flooding.find({
-      _deleted: { $nin: true }
-    }).populate('userId')) as any
-
-    const filteredFloodings = floodings.filter(
-      (each: any) => each.userId._deleted === false
-    )
-
-    const updatedFloodings = filteredFloodings.map((each: any) => {
-      return {
-        _id: each._id,
-        userId: each.userId._id,
-        userName: each.userId.name,
-        userPicture: each.userId.picture,
-        description: each.description,
-        address: each.address,
-        latitude: each.latitude,
-        longitude: each.longitude,
-        picture: each.picture,
-        severity: each.severity,
-        date: each.date,
-        favorites: each.favorites
-      }
-    })
-
-    return res.send(updatedFloodings)
+    return res.send(await sendAllFloodings())
   } catch (error) {
     console.log(error)
 
@@ -251,32 +145,7 @@ router.post('/add-favorite', async (req, res) => {
       })
     }
 
-    const floodings = (await Flooding.find({
-      _deleted: { $nin: true }
-    }).populate('userId')) as any
-
-    const filteredFloodings = floodings.filter(
-      (each: any) => each.userId._deleted === false
-    )
-
-    const updatedFloodings = filteredFloodings.map((each: any) => {
-      return {
-        _id: each._id,
-        userId: each.userId._id,
-        userName: each.userId.name,
-        userPicture: each.userId.picture,
-        description: each.description,
-        address: each.address,
-        latitude: each.latitude,
-        longitude: each.longitude,
-        picture: each.picture,
-        severity: each.severity,
-        date: each.date,
-        favorites: each.favorites
-      }
-    })
-
-    return res.send(updatedFloodings)
+    return res.send(await sendAllFloodings())
   } catch (error) {
     console.log(error)
 
@@ -307,32 +176,42 @@ router.post('/remove-favorite', async (req, res) => {
       favorites
     })
 
-    const floodings = (await Flooding.find({
+    return res.send(await sendAllFloodings())
+  } catch (error) {
+    console.log(error)
+
+    return res.status(422).send(error.message)
+  }
+})
+
+router.post('/add-comment', async (req, res) => {
+  try {
+    const { _id, message } = req.body
+
+    const flooding = (await Flooding.findOne({
+      _id,
       _deleted: { $nin: true }
-    }).populate('userId')) as any
+    })) as Flooding
 
-    const filteredFloodings = floodings.filter(
-      (each: any) => each.userId._deleted === false
-    )
+    if (!flooding) {
+      return res.status(422).send({ error: 'Alagamento não encontrado.' })
+    }
 
-    const updatedFloodings = filteredFloodings.map((each: any) => {
-      return {
-        _id: each._id,
-        userId: each.userId._id,
-        userName: each.userId.name,
-        userPicture: each.userId.picture,
-        description: each.description,
-        address: each.address,
-        latitude: each.latitude,
-        longitude: each.longitude,
-        picture: each.picture,
-        severity: each.severity,
-        date: each.date,
-        favorites: each.favorites
-      }
+    const newMessage = {
+      userId: req.user._id,
+      message,
+      date: new Date().getTime()
+    }
+
+    const newMessages = [...flooding.messages]
+
+    newMessages.push(newMessage)
+
+    await flooding.updateOne({
+      messages: newMessages
     })
 
-    return res.send(updatedFloodings)
+    return res.send(await sendAllFloodings())
   } catch (error) {
     console.log(error)
 

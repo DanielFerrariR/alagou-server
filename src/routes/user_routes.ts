@@ -4,8 +4,8 @@ import { User } from 'src/models'
 import { requireAuth } from '../midlewares'
 import uploader from '../cloudinary'
 import { ioInstance } from '../socket'
+import { sendAllFloodings } from '../utils'
 
-const Flooding = mongoose.model('Flooding')
 const User = mongoose.model('User')
 
 const router = express.Router()
@@ -86,30 +86,7 @@ router.post('/delete-account', async (req, res) => {
       _deleted: true
     })
 
-    const floodings = (await Flooding.find().populate('userId')) as any
-
-    const filteredFloodings = floodings.map(
-      (each: any) => each.userId._deleted === false
-    )
-
-    const newFloodings = filteredFloodings.map((each: any) => {
-      return {
-        _id: each._id,
-        userId: each.userId._id,
-        userName: each.userId.name,
-        userPicture: each.userId.profilePhoto,
-        description: each.description,
-        address: each.address,
-        latitude: each.latitude,
-        longitude: each.longitude,
-        picture: each.picture,
-        severity: each.severity,
-        date: each.date,
-        favorites: each.favorites
-      }
-    })
-
-    ioInstance.emit('floodings', newFloodings)
+    ioInstance.emit('floodings', await sendAllFloodings())
 
     return res.send(true)
   } catch (error) {

@@ -1,5 +1,12 @@
 import mongoose from 'mongoose'
 import { ioInstance } from '../socket'
+import { sendAllFloodings } from '../utils'
+
+export type Message = {
+  userId: string
+  message: string
+  date: number
+}
 
 export type Flooding = {
   userId: string
@@ -9,7 +16,26 @@ export type Flooding = {
   longitude: number
   picture: string
   favorites: string[]
+  _deleted: boolean
+  date: number
+  messages: Message[]
 } & mongoose.Document
+
+const messageSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  date: {
+    type: Date,
+    required: true
+  }
+})
 
 const floodingSchema = new mongoose.Schema(
   {
@@ -51,7 +77,8 @@ const floodingSchema = new mongoose.Schema(
     _deleted: {
       type: Boolean,
       default: false
-    }
+    },
+    messages: [messageSchema]
   },
   {
     timestamps: {
@@ -62,61 +89,11 @@ const floodingSchema = new mongoose.Schema(
 )
 
 floodingSchema.post('updateOne', async function () {
-  const Flooding = mongoose.model('Flooding')
-
-  const floodings = (await Flooding.find().populate('userId')) as any
-
-  const filteredFloodings = floodings.filter(
-    (each: any) => each.userId._deleted === false
-  )
-
-  const newFloodings = filteredFloodings.map((each: any) => {
-    return {
-      _id: each._id,
-      userId: each.userId._id,
-      userName: each.userId.name,
-      userPicture: each.userId.profilePhoto,
-      description: each.description,
-      address: each.address,
-      latitude: each.latitude,
-      longitude: each.longitude,
-      picture: each.picture,
-      severity: each.severity,
-      date: each.date,
-      favorites: each.favorites
-    }
-  })
-
-  ioInstance.emit('floodings', newFloodings)
+  ioInstance.emit('floodings', await sendAllFloodings())
 })
 
 floodingSchema.post('save', async function () {
-  const Flooding = mongoose.model('Flooding')
-
-  const floodings = (await Flooding.find().populate('userId')) as any
-
-  const filteredFloodings = floodings.filter(
-    (each: any) => each.userId._deleted === false
-  )
-
-  const newFloodings = filteredFloodings.map((each: any) => {
-    return {
-      _id: each._id,
-      userId: each.userId._id,
-      userName: each.userId.name,
-      userPicture: each.userId.profilePhoto,
-      description: each.description,
-      address: each.address,
-      latitude: each.latitude,
-      longitude: each.longitude,
-      picture: each.picture,
-      severity: each.severity,
-      date: each.date,
-      favorites: each.favorites
-    }
-  })
-
-  ioInstance.emit('floodings', newFloodings)
+  ioInstance.emit('floodings', await sendAllFloodings())
 })
 
 mongoose.model('Flooding', floodingSchema)
