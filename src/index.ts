@@ -4,7 +4,7 @@ import express, { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
 import { startIo } from './socket'
-import { authRoutes, floodingRoutes, userRoutes } from './routes'
+import { unprotectedRoutes, protectedRoutes } from './routes'
 import { requireAuth } from './midlewares'
 import { ensure } from './utils'
 
@@ -13,9 +13,8 @@ dotenv.config()
 const app = express()
 
 app.use(bodyParser.json())
-app.use(authRoutes)
-app.use(floodingRoutes)
-app.use(userRoutes)
+app.use(unprotectedRoutes)
+app.use(protectedRoutes)
 
 const mongoUri = ensure(process.env.MONGO_URI)
 

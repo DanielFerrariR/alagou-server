@@ -56,6 +56,9 @@ CLOUDNAME=devmkylpi
 CLOUDKEY=294113774143274
 CLOUDSECRET=2CgHfaOgERplIea53cDkl7PscJs
 SERVER_PORT=3005
+NODEMAILER_EMAIL_ADRESS=alagou.suporte@gmail.com
+NODEMAILER_PASSWORD=Q8^y(M({Mc.@?P_@
+SERVER_URL=http://localhost
 ```
 
 3. **Install all dependencies with yarn (not npm!!)**

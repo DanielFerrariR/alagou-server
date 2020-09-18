@@ -9,6 +9,10 @@ export type User = {
   level: number
   _deleted: boolean
   isAdmin: boolean
+  isEmailConfirmed: boolean
+  emailConfirmationToken: string
+  resetPasswordConfirmationToken: string
+  resetPasswordTokenExpires: Date
   comparePassword: (candidate: string) => Promise<boolean>
   _update: User
 } & mongoose.Document
@@ -41,6 +45,20 @@ const userSchema = new mongoose.Schema(
     isAdmin: {
       type: Boolean,
       default: false
+    },
+    isEmailConfirmed: {
+      type: Boolean,
+      default: false
+    },
+    emailConfirmationToken: {
+      type: String,
+      required: true
+    },
+    resetPasswordConfirmationToken: {
+      type: String
+    },
+    resetPasswordTokenExpires: {
+      type: Date
     }
   },
   {

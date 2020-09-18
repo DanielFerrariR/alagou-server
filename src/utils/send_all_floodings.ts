@@ -1,5 +1,8 @@
 import mongoose from 'mongoose'
 
+/**
+ * Returns all floodings
+ */
 const sendAllFloodings = async (): Promise<any> => {
   const Flooding = mongoose.model('Flooding')
 
