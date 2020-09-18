@@ -245,7 +245,7 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
       longitude,
       picture,
       severity,
-      date: new Date().getTime()
+      date: Date.now()
     })
 
     await flooding.save()
@@ -412,7 +412,7 @@ router.post('/add-comment', async (req, res) => {
     const newMessage = {
       userId: req.user._id,
       message,
-      date: new Date().getTime()
+      date: Date.now()
     }
 
     const newMessages = [...flooding.messages]
