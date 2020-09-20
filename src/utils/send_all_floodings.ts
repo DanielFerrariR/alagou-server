@@ -33,7 +33,7 @@ const sendAllFloodings = async (): Promise<any> => {
       userId: each.userId._id,
       userName: each.userId.name,
       userPicture: each.userId.picture,
-      description: each.description,
+      title: each.title,
       address: each.address,
       latitude: each.latitude,
       longitude: each.longitude,

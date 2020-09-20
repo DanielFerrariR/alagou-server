@@ -10,7 +10,7 @@ export type Message = {
 
 export type Flooding = {
   userId: string
-  description: string
+  title: string
   address: string
   latitude: number
   longitude: number
@@ -44,7 +44,7 @@ const floodingSchema = new mongoose.Schema(
       ref: 'User',
       required: true
     },
-    description: {
+    title: {
       type: String,
       required: true
     },

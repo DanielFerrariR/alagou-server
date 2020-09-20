@@ -186,7 +186,6 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       picture: updatedUser.picture,
-      level: updatedUser.level,
       isAdmin: updatedUser.isAdmin,
       isEmailConfirmed: updatedUser.isEmailConfirmed
     }
@@ -234,12 +233,12 @@ router.post('/delete-account', async (req, res) => {
 
 router.post('/flooding', uploader.single('picture'), async (req, res) => {
   try {
-    const { description, address, latitude, longitude, severity } = req.body
+    const { title, address, latitude, longitude, severity } = req.body
     const picture = req.file ? req.file.path : req.body.picture
 
     const flooding = new Flooding({
       userId: req.user._id,
-      description,
+      title,
       address,
       latitude,
       longitude,
@@ -259,24 +258,10 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
 
 router.put('/flooding', uploader.single('picture'), async (req, res) => {
   try {
-    const {
-      _id,
-      description,
-      address,
-      latitude,
-      longitude,
-      severity
-    } = req.body
+    const { _id, title, address, latitude, longitude, severity } = req.body
     const picture = req.file ? req.file.path : req.body.picture
 
-    if (
-      !_id ||
-      !description ||
-      !address ||
-      !latitude ||
-      !longitude ||
-      !severity
-    ) {
+    if (!_id || !title || !address || !latitude || !longitude || !severity) {
       return res
         .status(422)
         .send({ error: 'Todos campos obrigatórios devem ser preenchidos.' })
@@ -289,7 +274,7 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
     }).populate('userId')) as any
 
     await flooding.updateOne({
-      description,
+      title,
       address,
       latitude,
       longitude,

@@ -6,7 +6,6 @@ export type User = {
   email: string
   password: string
   picture: string
-  level: number
   _deleted: boolean
   isAdmin: boolean
   isEmailConfirmed: boolean
@@ -33,10 +32,6 @@ const userSchema = new mongoose.Schema(
     },
     picture: {
       type: String
-    },
-    level: {
-      type: Number,
-      default: 0
     },
     _deleted: {
       type: Boolean,

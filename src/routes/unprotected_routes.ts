@@ -58,7 +58,6 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
       name: newUser.name,
       email: newUser.email,
       picture: newUser.picture,
-      level: newUser.level,
       isAdmin: newUser.isAdmin,
       isEmailConfirmed: newUser.isEmailConfirmed
     }
@@ -120,7 +119,6 @@ router.post('/login', async (req, res) => {
       name: user.name,
       email: user.email,
       picture: user.picture,
-      level: user.level,
       isAdmin: user.isAdmin,
       isEmailConfirmed: user.isEmailConfirmed
     }
