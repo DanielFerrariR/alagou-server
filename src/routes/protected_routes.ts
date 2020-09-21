@@ -244,6 +244,7 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
       longitude,
       picture,
       severity,
+      isVerified: req.user.isAdmin,
       date: Date.now()
     })
 

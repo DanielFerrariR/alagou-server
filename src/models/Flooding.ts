@@ -19,6 +19,7 @@ export type Flooding = {
   _deleted: boolean
   date: number
   messages: Message[]
+  isVerified: boolean
 } & mongoose.Document
 
 const messageSchema = new mongoose.Schema({
@@ -78,7 +79,11 @@ const floodingSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    messages: [messageSchema]
+    messages: [messageSchema],
+    isVerfied: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: {

@@ -41,7 +41,8 @@ const sendAllFloodings = async (): Promise<any> => {
       severity: each.severity,
       date: each.date,
       favorites: each.favorites,
-      messages: newMessages
+      messages: newMessages,
+      isVerified: each.isVerified
     }
   })
 
