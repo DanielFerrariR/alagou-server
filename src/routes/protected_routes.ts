@@ -111,6 +111,12 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
         .send({ error: 'Todos campos obrigatórios devem ser preenchidos.' })
     }
 
+    if (!oldPassword && newPassword) {
+      return res.status(422).send({
+        error: 'A senha atual deve ser informada se informar a nova senha.'
+      })
+    }
+
     const user = (await User.findOne({
       _id: req.user._id,
       _deleted: false
