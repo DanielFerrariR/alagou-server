@@ -25,6 +25,12 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
         .send({ error: 'Todos os campos obrigatórios devem ser preenchidos' })
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(422).send({
+        error: 'E-mail inválido.'
+      })
+    }
+
     const futureUser = (await User.findOne({
       email,
       _deleted: false

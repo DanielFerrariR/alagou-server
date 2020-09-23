@@ -111,6 +111,12 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
         .send({ error: 'Todos campos obrigatórios devem ser preenchidos.' })
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(422).send({
+        error: 'E-mail inválido.'
+      })
+    }
+
     if (!oldPassword && newPassword) {
       return res.status(422).send({
         error: 'A senha atual deve ser informada se informar a nova senha.'
