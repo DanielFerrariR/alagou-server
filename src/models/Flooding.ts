@@ -20,6 +20,7 @@ export type Flooding = {
   date: number
   messages: Message[]
   isVerified: boolean
+  omitHours: boolean
 } & mongoose.Document
 
 const messageSchema = new mongoose.Schema({
@@ -66,9 +67,13 @@ const floodingSchema = new mongoose.Schema(
     },
     severity: {
       type: Number,
-      min: 1,
+      min: 0,
       max: 3,
       required: true
+    },
+    omitHours: {
+      type: Boolean,
+      default: false
     },
     date: {
       type: Date,
@@ -80,7 +85,7 @@ const floodingSchema = new mongoose.Schema(
       default: false
     },
     messages: [messageSchema],
-    isVerfied: {
+    isVerified: {
       type: Boolean,
       default: false
     }
@@ -92,6 +97,14 @@ const floodingSchema = new mongoose.Schema(
     }
   }
 )
+
+floodingSchema.post('updatedMany', async function () {
+  ioInstance.emit('floodings', await sendAllFloodings())
+})
+
+floodingSchema.post('insertMany', async function () {
+  ioInstance.emit('floodings', await sendAllFloodings())
+})
 
 floodingSchema.post('updateOne', async function () {
   ioInstance.emit('floodings', await sendAllFloodings())

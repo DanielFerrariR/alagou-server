@@ -4,9 +4,9 @@ import nodemailer from 'nodemailer'
 import { Flooding, User } from 'src/models'
 import { requireAuth } from '../midlewares'
 import uploader from '../cloudinary'
-import { ioInstance } from '../socket'
 import { sendAllFloodings, generateToken } from '../utils'
 import { emailConfirmationTemplate, supportTemplate } from '../email_templates'
+import { ioInstance } from '../socket'
 
 const User = mongoose.model('User')
 const Flooding = mongoose.model('Flooding')
@@ -27,7 +27,7 @@ router.post('/support', async (req, res) => {
 
     const user = (await User.findOne({
       _id: req.user._id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     if (!user.isEmailConfirmed) {
@@ -66,7 +66,7 @@ router.get('/resent-email', async (req, res) => {
   try {
     const user = (await User.findOne({
       _id: req.user._id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     if (user.isEmailConfirmed) {
@@ -113,13 +113,13 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
 
     const user = (await User.findOne({
       _id: req.user._id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     const futureUser = (await User.findOne({
       _id: { $nin: req.user._id },
       email,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     if (futureUser) {
@@ -156,7 +156,7 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
 
     const updatedUser = (await User.findOne({
       _id: req.user._id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     if (user.email !== email) {
@@ -190,6 +190,8 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
       isEmailConfirmed: updatedUser.isEmailConfirmed
     }
 
+    ioInstance.emit('floodings', await sendAllFloodings())
+
     return res.send({ ...userData })
   } catch (error) {
     console.log(error)
@@ -210,7 +212,7 @@ router.post('/delete-account', async (req, res) => {
 
     const user = (await User.findOne({
       _id: req.user._id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     if (!(await user.comparePassword(password))) {
@@ -221,7 +223,10 @@ router.post('/delete-account', async (req, res) => {
       _deleted: true
     })
 
-    ioInstance.emit('floodings', await sendAllFloodings())
+    await Flooding.updateMany(
+      { userId: req.user._id, _deleted: false },
+      { _deleted: true }
+    )
 
     return res.send(true)
   } catch (error) {
@@ -244,7 +249,6 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
       longitude,
       picture,
       severity,
-      isVerified: req.user.isAdmin,
       date: Date.now()
     })
 
@@ -271,7 +275,7 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
     const flooding = (await Flooding.findOne({
       _id,
       userId: req.user._id,
-      _deleted: { $nin: true }
+      _deleted: false
     }).populate('userId')) as any
 
     await flooding.updateOne({
@@ -297,7 +301,7 @@ router.delete('/flooding', async (req, res) => {
 
     const flooding = (await Flooding.findOne({
       _id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as Flooding
 
     if (!flooding) {
@@ -322,7 +326,7 @@ router.post('/add-favorite', async (req, res) => {
 
     const flooding = (await Flooding.findOne({
       _id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as Flooding
 
     if (!flooding) {
@@ -357,7 +361,7 @@ router.post('/remove-favorite', async (req, res) => {
 
     const flooding = (await Flooding.findOne({
       _id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as Flooding
 
     if (!flooding) {
@@ -388,7 +392,7 @@ router.post('/add-comment', async (req, res) => {
 
     const flooding = (await Flooding.findOne({
       _id,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as Flooding
 
     if (!flooding) {
@@ -408,6 +412,31 @@ router.post('/add-comment', async (req, res) => {
     await flooding.updateOne({
       messages: newMessages
     })
+
+    return res.send(await sendAllFloodings())
+  } catch (error) {
+    console.log(error)
+
+    return res.status(422).send(error.message)
+  }
+})
+
+router.post('/upload-floodings-csv', async (req, res) => {
+  try {
+    if (!req.user.isAdmin) {
+      return res.status(422).send({
+        error:
+          'Você precisa ser um administrador para usar essa funcionalidade.'
+      })
+    }
+
+    const data = req.body
+
+    const newData = data.map((each: any) => {
+      return { userId: req.user.id, ...each }
+    })
+
+    await Flooding.insertMany(newData)
 
     return res.send(await sendAllFloodings())
   } catch (error) {

@@ -27,7 +27,7 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
 
     const futureUser = (await User.findOne({
       email,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     if (futureUser) {
@@ -48,9 +48,13 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
 
+    await user.updateOne({
+      activeWebToken: token
+    })
+
     const newUser = (await User.findOne({
       email,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     const userData = {
@@ -99,7 +103,7 @@ router.post('/login', async (req, res) => {
 
     const user = (await User.findOne({
       email,
-      _deleted: { $nin: true }
+      _deleted: false
     })) as User
 
     if (!user) {
@@ -113,6 +117,10 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
+
+    await user.updateOne({
+      activeToken: token
+    })
 
     const userData = {
       _id: user._id,

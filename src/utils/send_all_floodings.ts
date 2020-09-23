@@ -12,11 +12,7 @@ const sendAllFloodings = async (): Promise<any> => {
     .populate('userId')
     .populate({ path: 'messages', populate: { path: 'userId' } })) as any
 
-  const filteredFloodings = floodings.filter(
-    (each: any) => each.userId._deleted === false
-  )
-
-  const newFloodings = filteredFloodings.map((each: any) => {
+  const newFloodings = floodings.map((each: any) => {
     const newMessages = each.messages.map((insideEach: any) => {
       return {
         _id: insideEach._id,
@@ -42,7 +38,8 @@ const sendAllFloodings = async (): Promise<any> => {
       date: each.date,
       favorites: each.favorites,
       messages: newMessages,
-      isVerified: each.isVerified
+      isVerified: each.isVerified,
+      omitHours: each.omitHours
     }
   })
 

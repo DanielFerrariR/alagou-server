@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
+import { ioInstance } from '../socket'
+import { sendAllFloodings } from '../utils'
 
 export type User = {
   name: string
@@ -12,6 +14,7 @@ export type User = {
   emailConfirmationToken: string
   resetPasswordConfirmationToken: string
   resetPasswordTokenExpires: Date
+  activeToken: string
   comparePassword: (candidate: string) => Promise<boolean>
   _update: User
 } & mongoose.Document
@@ -54,6 +57,9 @@ const userSchema = new mongoose.Schema(
     },
     resetPasswordTokenExpires: {
       type: Date
+    },
+    activeToken: {
+      type: String
     }
   },
   {

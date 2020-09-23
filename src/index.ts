@@ -8,9 +8,6 @@ import { unprotectedRoutes, protectedRoutes } from './routes'
 import { requireAuth } from './midlewares'
 import { ensure } from './utils'
 
-const date = new Date().getTime() + new Date().getTimezoneOffset() * 60 * 60
-
-console.log(new Date().getTime(), date, new Date(date))
 dotenv.config()
 
 const app = express()
