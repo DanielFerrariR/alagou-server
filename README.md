@@ -59,6 +59,7 @@ PORT=3005
 NODEMAILER_EMAIL_ADRESS=alagou.suporte@gmail.com
 NODEMAILER_PASSWORD=Q8^y(M({Mc.@?P_@
 SERVER_URL=http://localhost
+EMAIL_PORT=3005
 ```
 
 3. **Install all dependencies with yarn (not npm!!)**
