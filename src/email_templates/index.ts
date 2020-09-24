@@ -12,7 +12,7 @@ const emailConfirmationTemplate = (name: string, token: string): string => {
 
   text = text.replace(
     '//link//',
-    `${process.env.SERVER_URL}:${process.env.SERVER_PORT}/confirm-email-link/${token}`
+    `${process.env.SERVER_URL}:${process.env.PORT}/confirm-email-link/${token}`
   )
 
   return text
@@ -28,7 +28,7 @@ const resetPasswordTemplate = (name: string, token: string): string => {
 
   text = text.replace(
     '//link//',
-    `${process.env.SERVER_URL}:${process.env.SERVER_PORT}/reset-password-link/${token}`
+    `${process.env.SERVER_URL}:${process.env.PORT}/reset-password-link/${token}`
   )
 
   return text

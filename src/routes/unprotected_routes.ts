@@ -59,10 +59,6 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
 
-    await user.updateOne({
-      activeWebToken: token
-    })
-
     const newUser = (await User.findOne({
       email,
       _deleted: false
@@ -132,10 +128,6 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, ensure(process.env.SECRET_KEY))
-
-    await user.updateOne({
-      activeToken: token
-    })
 
     const userData = {
       _id: user._id,
