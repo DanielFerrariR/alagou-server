@@ -44,11 +44,11 @@ const alertSchema = new mongoose.Schema(
 )
 
 alertSchema.post('updateOne', async function () {
-  ioInstance.emit('alerts', await sendAllAlerts())
+  ioInstance.emit('update-alert', await sendAllAlerts())
 })
 
 alertSchema.post('save', async function () {
-  ioInstance.emit('alerts', await sendAllAlerts())
+  ioInstance.emit('save-alert', await sendAllAlerts())
 })
 
 mongoose.model('Alert', alertSchema)
