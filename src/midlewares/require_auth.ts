@@ -36,9 +36,9 @@ const requireAuth = (
       return res.status(401).send({ error: 'Não autorizado.' })
     }
 
-    // if (user.activeToken !== token) {
-    //   return res.status(401).send({ error: 'Não autorizado.' })
-    // }
+    if (user.activeToken !== token) {
+      return res.status(401).send({ error: 'Não autorizado.' })
+    }
 
     req.user = user as User
 
