@@ -38,8 +38,8 @@ app.get('/', requireAuth, (req: Request, res: Response) => {
 
 const server = require('http').createServer(app)
 
-server.listen(process.env.SERVER_PORT, () => {
-  console.log(`Listening on port ${process.env.SERVER_PORT}`)
+server.listen(process.env.PORT, () => {
+  console.log(`Listening on port ${process.env.PORT}`)
 })
 
 startIo(server)
