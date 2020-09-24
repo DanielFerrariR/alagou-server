@@ -1,7 +1,5 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
-import { ioInstance } from '../socket'
-import { sendAllFloodings } from '../utils'
 
 export type User = {
   name: string
