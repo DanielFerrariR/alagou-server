@@ -25,8 +25,6 @@ router.post('/alert', async (req, res) => {
       })
     }
 
-    console.log(req.body)
-
     const { title, content, severity } = req.body
 
     if (!title || !content || !severity) {
