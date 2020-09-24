@@ -25,6 +25,8 @@ router.post('/alert', async (req, res) => {
       })
     }
 
+    console.log(req.body)
+
     const { title, content, severity } = req.body
 
     if (!title || !content || !severity) {
@@ -36,7 +38,8 @@ router.post('/alert', async (req, res) => {
     const alert = new Alert({
       title,
       content,
-      severity
+      severity,
+      date: Date.now()
     })
 
     await alert.save()
