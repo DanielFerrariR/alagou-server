@@ -4,7 +4,12 @@ import nodemailer from 'nodemailer'
 import jwt from 'jsonwebtoken'
 import { User } from 'src/models'
 import uploader from '../cloudinary'
-import { ensure, generateToken, sendAllFloodings } from '../utils'
+import {
+  ensure,
+  generateToken,
+  sendAllFloodings,
+  sendAllAlerts
+} from '../utils'
 import {
   emailConfirmationTemplate,
   resetPasswordTemplate
@@ -62,6 +67,10 @@ router.post('/register', uploader.single('picture'), async (req, res) => {
       email,
       _deleted: false
     })) as User
+
+    if (!newUser) {
+      return res.status(422).send({ error: 'Usuário não encontrado.' })
+    }
 
     const userData = {
       _id: newUser._id,
@@ -277,6 +286,15 @@ router.get('/reset-password-link/:token', (req, res) => {
 router.get('/floodings', async (_req, res) => {
   try {
     res.send(await sendAllFloodings())
+  } catch (error) {
+    console.log(error)
+    res.status(422).send({ error: error.message })
+  }
+})
+
+router.get('/alerts', async (_req, res) => {
+  try {
+    res.send(await sendAllAlerts())
   } catch (error) {
     console.log(error)
     res.status(422).send({ error: error.message })

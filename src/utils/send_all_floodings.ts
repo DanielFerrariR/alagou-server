@@ -7,7 +7,7 @@ const sendAllFloodings = async (): Promise<any> => {
   const Flooding = mongoose.model('Flooding')
 
   const floodings = (await Flooding.find({
-    _deleted: { $nin: true }
+    _deleted: false
   })
     .populate('userId')
     .populate({ path: 'messages', populate: { path: 'userId' } })) as any

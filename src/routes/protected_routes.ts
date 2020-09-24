@@ -1,19 +1,125 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import nodemailer from 'nodemailer'
-import { Flooding, User } from 'src/models'
+import { Flooding, User, Alert } from 'src/models'
 import { requireAuth } from '../midlewares'
 import uploader from '../cloudinary'
-import { sendAllFloodings, generateToken } from '../utils'
+import { sendAllFloodings, generateToken, sendAllAlerts } from '../utils'
 import { emailConfirmationTemplate, supportTemplate } from '../email_templates'
 import { ioInstance } from '../socket'
 
 const User = mongoose.model('User')
 const Flooding = mongoose.model('Flooding')
+const Alert = mongoose.model('Alert')
 
 const router = express.Router()
 
 router.use(requireAuth)
+
+router.post('/alert', async (req, res) => {
+  try {
+    if (!req.user.isAdmin) {
+      return res.status(422).send({
+        error:
+          'Você precisa ser um administrador para usar essa funcionalidade.'
+      })
+    }
+
+    const { title, content, severity } = req.body
+
+    if (!title || !content || !severity) {
+      return res
+        .status(422)
+        .send({ error: 'Todos campos obrigatórios devem ser preenchidos.' })
+    }
+
+    const alert = new Alert({
+      title,
+      content,
+      severity
+    })
+
+    await alert.save()
+
+    return res.send(await sendAllAlerts())
+  } catch (error) {
+    console.log(error)
+
+    return res.status(422).send(error.message)
+  }
+})
+
+router.put('/alert', async (req, res) => {
+  try {
+    if (!req.user.isAdmin) {
+      return res.status(422).send({
+        error:
+          'Você precisa ser um administrador para usar essa funcionalidade.'
+      })
+    }
+
+    const { _id, title, content, severity } = req.body
+
+    if (!_id || !title || !content || !severity) {
+      return res
+        .status(422)
+        .send({ error: 'Todos campos obrigatórios devem ser preenchidos.' })
+    }
+
+    const alert = (await Alert.findOne({
+      _id,
+      _deleted: false
+    })) as Alert
+
+    if (!alert) {
+      return res.status(422).send({ error: 'Alerta não encontrado.' })
+    }
+
+    await alert.updateOne({
+      title,
+      content,
+      severity
+    })
+
+    return res.send(await sendAllAlerts())
+  } catch (error) {
+    console.log(error)
+
+    return res.status(422).send(error.message)
+  }
+})
+
+router.delete('/alert', async (req, res) => {
+  try {
+    if (!req.user.isAdmin) {
+      return res.status(422).send({
+        error:
+          'Você precisa ser um administrador para usar essa funcionalidade.'
+      })
+    }
+
+    const { _id } = req.body
+
+    const alert = (await Alert.findOne({
+      _id,
+      _deleted: false
+    })) as Alert
+
+    if (!alert) {
+      return res.status(422).send({ error: 'Alerta não encontrado.' })
+    }
+
+    await alert.updateOne({
+      _deleted: true
+    })
+
+    return res.send(await sendAllAlerts())
+  } catch (error) {
+    console.log(error)
+
+    return res.status(422).send(error.message)
+  }
+})
 
 router.post('/support', async (req, res) => {
   try {
@@ -29,6 +135,10 @@ router.post('/support', async (req, res) => {
       _id: req.user._id,
       _deleted: false
     })) as User
+
+    if (!user) {
+      return res.status(422).send({ error: 'Usuário não encontrado.' })
+    }
 
     if (!user.isEmailConfirmed) {
       return res.status(422).send({
@@ -68,6 +178,10 @@ router.get('/resent-email', async (req, res) => {
       _id: req.user._id,
       _deleted: false
     })) as User
+
+    if (!user) {
+      return res.status(422).send({ error: 'Usuário não encontrado.' })
+    }
 
     if (user.isEmailConfirmed) {
       return res
@@ -128,6 +242,10 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
       _deleted: false
     })) as User
 
+    if (!user) {
+      return res.status(422).send({ error: 'Usuário não encontrado.' })
+    }
+
     const futureUser = (await User.findOne({
       _id: { $nin: req.user._id },
       email,
@@ -170,6 +288,10 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
       _id: req.user._id,
       _deleted: false
     })) as User
+
+    if (!user) {
+      return res.status(422).send({ error: 'Usuário não encontrado.' })
+    }
 
     if (user.email !== email) {
       const transporter = nodemailer.createTransport({
@@ -226,6 +348,10 @@ router.post('/delete-account', async (req, res) => {
       _id: req.user._id,
       _deleted: false
     })) as User
+
+    if (!user) {
+      return res.status(422).send({ error: 'Usuário não encontrado.' })
+    }
 
     if (!(await user.comparePassword(password))) {
       return res.status(422).send({ error: 'Senha inválida.' })
@@ -290,6 +416,10 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
       _deleted: false
     }).populate('userId')) as any
 
+    if (!flooding) {
+      return res.status(422).send({ error: 'Alagamento não encontrado.' })
+    }
+
     await flooding.updateOne({
       title,
       address,
@@ -312,6 +442,7 @@ router.delete('/flooding', async (req, res) => {
     const { _id } = req.body
 
     const flooding = (await Flooding.findOne({
+      userId: req.user._id,
       _id,
       _deleted: false
     })) as Flooding
@@ -443,6 +574,12 @@ router.post('/upload-floodings-csv', async (req, res) => {
     }
 
     const data = req.body
+
+    if (!data) {
+      return res.status(422).send({
+        error: 'Você precisa enviar os alagamentos.'
+      })
+    }
 
     const newData = data.map((each: any) => {
       return { userId: req.user.id, ...each }

@@ -20,6 +20,7 @@ export type Flooding = {
   date: number
   messages: Message[]
   isVerified: boolean
+  severity: number
   omitHours: boolean
 } & mongoose.Document
 
