@@ -49,4 +49,14 @@ const supportTemplate = (user: User, message: string): string => {
   return text
 }
 
-export { emailConfirmationTemplate, resetPasswordTemplate, supportTemplate }
+const privacyPolicyTemplate = fs.readFileSync(
+  path.resolve(__dirname, './privacy_policy.html'),
+  'utf8'
+)
+
+export {
+  emailConfirmationTemplate,
+  resetPasswordTemplate,
+  supportTemplate,
+  privacyPolicyTemplate
+}

@@ -12,12 +12,17 @@ import {
 } from '../utils'
 import {
   emailConfirmationTemplate,
-  resetPasswordTemplate
-} from '../email_templates'
+  resetPasswordTemplate,
+  privacyPolicyTemplate
+} from '../templates'
 
 const User = mongoose.model('User')
 
 const router = express.Router()
+
+router.get('/privacy-policy', (_req, res) => {
+  res.send(privacyPolicyTemplate)
+})
 
 router.post('/register', uploader.single('picture'), async (req, res) => {
   try {

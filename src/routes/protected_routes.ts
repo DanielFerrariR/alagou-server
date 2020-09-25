@@ -5,7 +5,7 @@ import { Flooding, User, Alert } from 'src/models'
 import { requireAuth } from '../midlewares'
 import uploader from '../cloudinary'
 import { sendAllFloodings, generateToken, sendAllAlerts } from '../utils'
-import { emailConfirmationTemplate, supportTemplate } from '../email_templates'
+import { emailConfirmationTemplate, supportTemplate } from '../templates'
 import { ioInstance } from '../socket'
 
 const User = mongoose.model('User')
