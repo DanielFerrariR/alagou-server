@@ -21,7 +21,7 @@ const User = mongoose.model('User')
 const router = express.Router()
 
 router.get('/privacy-policy', (_req, res) => {
-  res.send(privacyPolicyTemplate)
+  res.send(privacyPolicyTemplate())
 })
 
 router.post('/register', uploader.single('picture'), async (req, res) => {

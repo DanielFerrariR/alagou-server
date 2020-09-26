@@ -49,10 +49,14 @@ const supportTemplate = (user: User, message: string): string => {
   return text
 }
 
-const privacyPolicyTemplate = fs.readFileSync(
-  path.resolve(__dirname, './privacy_policy.html'),
-  'utf8'
-)
+const privacyPolicyTemplate = (): string => {
+  const text = fs.readFileSync(
+    path.resolve(__dirname, './privacy_policy.html'),
+    'utf8'
+  )
+
+  return text
+}
 
 export {
   emailConfirmationTemplate,
