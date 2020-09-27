@@ -12,17 +12,20 @@ const sendAllFloodings = async (): Promise<any> => {
     .populate('userId')
     .populate({ path: 'messages', populate: { path: 'userId' } })) as any
 
-  const newFloodings = floodings.map((each: any) => {
-    const newMessages = each.messages.map((insideEach: any) => {
+  let newFloodings = floodings.map((each: any) => {
+    let newMessages = each.messages.map((insideEach: any) => {
       return {
         _id: insideEach._id,
         message: insideEach.message,
         userId: insideEach.userId._id,
         userName: insideEach.userId.name,
         userPicture: insideEach.userId.picture,
-        date: insideEach.date
+        date: insideEach.date,
+        loading: insideEach.loading
       }
     })
+
+    newMessages = [...newMessages].reverse()
 
     return {
       _id: each._id,
@@ -41,6 +44,16 @@ const sendAllFloodings = async (): Promise<any> => {
       isVerified: each.isVerified,
       omitHours: each.omitHours
     }
+  })
+
+  newFloodings = newFloodings.sort((first: any, second: any) => {
+    if (first.date > second.date) {
+      return -1
+    }
+    if (first.date === second.date) {
+      return 0
+    }
+    return 1
   })
 
   return newFloodings

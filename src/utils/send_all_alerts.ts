@@ -10,7 +10,7 @@ const sendAllAlerts = async (): Promise<any> => {
     _deleted: false
   })) as any
 
-  const newAlerts = alerts.map((each: any) => {
+  let newAlerts = alerts.map((each: any) => {
     return {
       _id: each._id,
       title: each.title,
@@ -19,6 +19,8 @@ const sendAllAlerts = async (): Promise<any> => {
       date: each.date
     }
   })
+
+  newAlerts = [...newAlerts].reverse()
 
   return newAlerts
 }
