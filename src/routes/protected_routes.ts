@@ -22,8 +22,15 @@ const router = express.Router()
 
 router.use(requireAuth)
 
-router.get('/download-csv', async (_req, res) => {
+router.get('/floodings-csv', async (req, res) => {
   try {
+    if (!req.user.isAdmin) {
+      return res.status(422).send({
+        error:
+          'Você precisa ser um administrador para usar essa funcionalidade.'
+      })
+    }
+
     const floodings = await fetchAllFloodings()
 
     const newFloodings = floodings.map((each: any) => {
@@ -43,10 +50,10 @@ router.get('/download-csv', async (_req, res) => {
 
     const data = Papa.unparse(newFloodings)
 
-    res.send(data)
+    return res.send(data)
   } catch (error) {
     console.log(error)
-    res.status(422).send({ error: error.message })
+    return res.status(422).send({ error: error.message })
   }
 })
 
