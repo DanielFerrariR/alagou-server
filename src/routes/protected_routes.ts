@@ -1,10 +1,16 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import nodemailer from 'nodemailer'
+import Papa from 'papaparse'
 import { Flooding, User, Alert } from 'src/models'
 import { requireAuth } from '../midlewares'
 import uploader from '../cloudinary'
-import { sendAllFloodings, generateToken, sendAllAlerts } from '../utils'
+import {
+  fetchAllFloodings,
+  generateToken,
+  fetchAllAlerts,
+  formatDate
+} from '../utils'
 import { emailConfirmationTemplate, supportTemplate } from '../templates'
 import { ioInstance } from '../socket'
 
@@ -15,6 +21,34 @@ const Alert = mongoose.model('Alert')
 const router = express.Router()
 
 router.use(requireAuth)
+
+router.get('/download-csv', async (_req, res) => {
+  try {
+    const floodings = await fetchAllFloodings()
+
+    const newFloodings = floodings.map((each: any) => {
+      return {
+        _id: each._id,
+        userName: each.userName,
+        userPicture: each.userPicture,
+        picture: each.picture,
+        latitude: each.latitude,
+        lontitude: each.longitude,
+        address: each.address,
+        date: formatDate(new Date(each.date)),
+        title: each.title,
+        severity: each.severity
+      }
+    })
+
+    const data = Papa.unparse(newFloodings)
+
+    res.send(data)
+  } catch (error) {
+    console.log(error)
+    res.status(422).send({ error: error.message })
+  }
+})
 
 router.post('/alert', async (req, res) => {
   try {
@@ -42,7 +76,7 @@ router.post('/alert', async (req, res) => {
 
     await alert.save()
 
-    return res.send(await sendAllAlerts())
+    return res.send(await fetchAllAlerts())
   } catch (error) {
     console.log(error)
 
@@ -82,7 +116,7 @@ router.put('/alert', async (req, res) => {
       severity
     })
 
-    return res.send(await sendAllAlerts())
+    return res.send(await fetchAllAlerts())
   } catch (error) {
     console.log(error)
 
@@ -114,7 +148,7 @@ router.delete('/alert', async (req, res) => {
       _deleted: true
     })
 
-    return res.send(await sendAllAlerts())
+    return res.send(await fetchAllAlerts())
   } catch (error) {
     console.log(error)
 
@@ -325,7 +359,7 @@ router.put('/edit-user', uploader.single('picture'), async (req, res) => {
       isEmailConfirmed: updatedUser.isEmailConfirmed
     }
 
-    ioInstance.emit('floodings', await sendAllFloodings())
+    ioInstance.emit('floodings', await fetchAllFloodings())
 
     return res.send({ ...userData })
   } catch (error) {
@@ -393,7 +427,7 @@ router.post('/flooding', uploader.single('picture'), async (req, res) => {
 
     await flooding.save()
 
-    res.send(await sendAllFloodings())
+    res.send(await fetchAllFloodings())
   } catch (error) {
     console.log(error)
     res.status(422).send({ error: error.message })
@@ -430,7 +464,7 @@ router.put('/flooding', uploader.single('picture'), async (req, res) => {
       severity
     })
 
-    return res.send(await sendAllFloodings())
+    return res.send(await fetchAllFloodings())
   } catch (error) {
     console.log(error)
 
@@ -456,7 +490,7 @@ router.delete('/flooding', async (req, res) => {
       _deleted: true
     })
 
-    return res.send(await sendAllFloodings())
+    return res.send(await fetchAllFloodings())
   } catch (error) {
     console.log(error)
 
@@ -491,7 +525,7 @@ router.post('/add-favorite', async (req, res) => {
       })
     }
 
-    return res.send(await sendAllFloodings())
+    return res.send(await fetchAllFloodings())
   } catch (error) {
     console.log(error)
 
@@ -522,7 +556,7 @@ router.post('/remove-favorite', async (req, res) => {
       favorites
     })
 
-    return res.send(await sendAllFloodings())
+    return res.send(await fetchAllFloodings())
   } catch (error) {
     console.log(error)
 
@@ -557,7 +591,7 @@ router.post('/add-comment', async (req, res) => {
       messages: newMessages
     })
 
-    return res.send(await sendAllFloodings())
+    return res.send(await fetchAllFloodings())
   } catch (error) {
     console.log(error)
 
@@ -588,7 +622,7 @@ router.post('/upload-floodings-csv', async (req, res) => {
 
     await Flooding.insertMany(newData)
 
-    return res.send(await sendAllFloodings())
+    return res.send(await fetchAllFloodings())
   } catch (error) {
     console.log(error)
 

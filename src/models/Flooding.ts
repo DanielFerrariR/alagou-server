@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { ioInstance } from '../socket'
-import { sendAllFloodings } from '../utils'
+import { fetchAllFloodings } from '../utils'
 
 export type Message = {
   userId: string
@@ -100,19 +100,19 @@ const floodingSchema = new mongoose.Schema(
 )
 
 floodingSchema.post('updatedMany', async function () {
-  ioInstance.emit('floodings', await sendAllFloodings())
+  ioInstance.emit('floodings', await fetchAllFloodings())
 })
 
 floodingSchema.post('insertMany', async function () {
-  ioInstance.emit('floodings', await sendAllFloodings())
+  ioInstance.emit('floodings', await fetchAllFloodings())
 })
 
 floodingSchema.post('updateOne', async function () {
-  ioInstance.emit('floodings', await sendAllFloodings())
+  ioInstance.emit('floodings', await fetchAllFloodings())
 })
 
 floodingSchema.post('save', async function () {
-  ioInstance.emit('floodings', await sendAllFloodings())
+  ioInstance.emit('floodings', await fetchAllFloodings())
 })
 
 mongoose.model('Flooding', floodingSchema)

@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 /**
  * Returns all floodings
  */
-const sendAllFloodings = async (): Promise<any> => {
+const fetchAllFloodings = async (): Promise<any> => {
   const Flooding = mongoose.model('Flooding')
 
   const floodings = (await Flooding.find({
@@ -59,4 +59,4 @@ const sendAllFloodings = async (): Promise<any> => {
   return newFloodings
 }
 
-export default sendAllFloodings
+export default fetchAllFloodings

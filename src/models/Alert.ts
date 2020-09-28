@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { ioInstance } from '../socket'
-import { sendAllAlerts } from '../utils'
+import { fetchAllAlerts } from '../utils'
 
 export type Alert = {
   title: string
@@ -44,11 +44,11 @@ const alertSchema = new mongoose.Schema(
 )
 
 alertSchema.post('updateOne', async function () {
-  ioInstance.emit('update-alert', await sendAllAlerts())
+  ioInstance.emit('update-alert', await fetchAllAlerts())
 })
 
 alertSchema.post('save', async function () {
-  ioInstance.emit('save-alert', await sendAllAlerts())
+  ioInstance.emit('save-alert', await fetchAllAlerts())
 })
 
 mongoose.model('Alert', alertSchema)

@@ -7,8 +7,8 @@ import uploader from '../cloudinary'
 import {
   ensure,
   generateToken,
-  sendAllFloodings,
-  sendAllAlerts
+  fetchAllFloodings,
+  fetchAllAlerts
 } from '../utils'
 import {
   emailConfirmationTemplate,
@@ -282,7 +282,7 @@ router.get('/reset-password-link/:token', (req, res) => {
 
 router.get('/floodings', async (_req, res) => {
   try {
-    res.send(await sendAllFloodings())
+    res.send(await fetchAllFloodings())
   } catch (error) {
     console.log(error)
     res.status(422).send({ error: error.message })
@@ -291,7 +291,7 @@ router.get('/floodings', async (_req, res) => {
 
 router.get('/alerts', async (_req, res) => {
   try {
-    res.send(await sendAllAlerts())
+    res.send(await fetchAllAlerts())
   } catch (error) {
     console.log(error)
     res.status(422).send({ error: error.message })

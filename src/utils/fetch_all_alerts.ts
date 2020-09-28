@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 /**
  * Returns all alerts
  */
-const sendAllAlerts = async (): Promise<any> => {
+const fetchAllAlerts = async (): Promise<any> => {
   const Alert = mongoose.model('Alert')
 
   const alerts = (await Alert.find({
@@ -25,4 +25,4 @@ const sendAllAlerts = async (): Promise<any> => {
   return newAlerts
 }
 
-export default sendAllAlerts
+export default fetchAllAlerts
