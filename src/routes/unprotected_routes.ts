@@ -277,7 +277,7 @@ router.get('/confirm-email-link/:token', (req, res) => {
 router.get('/reset-password-link/:token', (req, res) => {
   const { token } = req.params
 
-  res.redirect(`alagou://ForgotPassword/${token}`)
+  res.redirect(`alagou://ResetPassword/${token}`)
 })
 
 router.get('/floodings', async (_req, res) => {
